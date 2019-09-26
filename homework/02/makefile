@@ -3,7 +3,7 @@ CC := gcc
 TAUCC := tau_cc.sh
 
 #CFLAGS := -std=gnu99 -Wall -Wextra -Wpedantic -Wunused-parameter -O3
-CFLAGS := -std=gnu99 -O3 #-qopenmp
+CFLAGS := -std=gnu99 -O3 -fopenmp
 SRCDIR := src
 CFILES := $(filter-out ./$(SRCDIR)/main.c,$(wildcard ./$(SRCDIR)/*.c))
 OFILES := $(CFILES:.c=.o)
