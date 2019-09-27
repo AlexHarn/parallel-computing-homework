@@ -44,13 +44,13 @@ plt.axvline(32)
 plt.axvline(285)
 plt.xlabel(r'$B$')
 plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
 # plt.show()
 plt.savefig('square_against_B.pdf')
 plt.clf()
 
-# cache misses for a narrow matrix
+# cache misses for a wide matrix (M >> N)
 B = B.astype(np.int32)
 bs = np.unique(B)
 bs = bs[bs <= 512]
@@ -70,13 +70,13 @@ plt.plot(bs, l1, '.', label='L1 Misses')
 plt.plot(bs, su, '.', label='Speedup')
 plt.xlabel(r'$B$')
 plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
 # plt.show()
-plt.savefig('narrow_against_B.pdf')
+plt.savefig('wide_against_B.pdf')
 plt.clf()
 
-# cache misses for a wide matrix
+# cache misses for a narrow matrix (M << N)
 l1 = []
 l2 = []
 l3 = []
@@ -93,10 +93,10 @@ plt.plot(bs, l1, '.', label='L1 Misses')
 plt.plot(bs, su, '.', label='Speedup')
 plt.xlabel(r'$B$')
 plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
 # plt.show()
-plt.savefig('wide_against_B.pdf')
+plt.savefig('narrow_against_B.pdf')
 plt.clf()
 
 # different square matrices for fixed B=200
@@ -112,27 +112,8 @@ plt.plot(N[mask], l1, '.', label='L1 Misses')
 plt.plot(N[mask], su, '.', label='Speedup')
 plt.xlabel(r'$N$')
 plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
-# plt.show()
-plt.savefig('fixed_B_different_squares.pdf')
-plt.clf()
-
-# different square matrices for fixed B=200
-mask = np.logical_and(N == M, B == 200)
-l1 = l1_opt[mask]/l1_naiv[mask]
-l2 = l2_opt[mask]/l2_naiv[mask]
-l3 = l3_opt[mask]/l3_naiv[mask]
-su = speedup[mask]
-
-plt.plot(N[mask], l3, '.', label='L3 Misses')
-plt.plot(N[mask], l2, '.', label='L2 Misses')
-plt.plot(N[mask], l1, '.', label='L1 Misses')
-plt.plot(N[mask], su, '.', label='Speedup')
-plt.xlabel(r'$N=M$')
-plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
 # plt.show()
 plt.savefig('fixed_B_different_squares.pdf')
 plt.clf()
@@ -144,14 +125,14 @@ l2 = l2_opt[mask]/l2_naiv[mask]
 l3 = l3_opt[mask]/l3_naiv[mask]
 su = speedup[mask]
 
-plt.plot(N[mask], l3, '.', label='L3')
-plt.plot(N[mask], l2, '.', label='L2')
-plt.plot(N[mask], l1, '.', label='L1')
+plt.plot(N[mask], l3, '.', label='L3 Misses')
+plt.plot(N[mask], l2, '.', label='L2 Misses')
+plt.plot(N[mask], l1, '.', label='L1 Misses')
 plt.plot(N[mask], su, '.', label='Speedup')
 plt.xlabel(r'$N$')
 plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
 # plt.show()
 plt.savefig('fixed_B_M_different_N.pdf')
 plt.clf()
@@ -163,14 +144,14 @@ l2 = l2_opt[mask]/l2_naiv[mask]
 l3 = l3_opt[mask]/l3_naiv[mask]
 su = speedup[mask]
 
-plt.plot(M[mask], l3, '.', label='L3')
-plt.plot(M[mask], l2, '.', label='L2')
-plt.plot(M[mask], l1, '.', label='L1')
+plt.plot(M[mask], l3, '.', label='L3 Misses')
+plt.plot(M[mask], l2, '.', label='L2 Misses')
+plt.plot(M[mask], l1, '.', label='L1 Misses')
 plt.plot(M[mask], su, '.', label='Speedup')
 plt.xlabel(r'$M$')
 plt.ylabel('Ratio Optimized/Naiv')
-plt.legend(loc='lower left', bbox_to_anchor= (-.1, 1.01), ncol=8,
-            borderaxespad=0, frameon=False)
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
 # plt.show()
 plt.savefig('fixed_B_N_different_M.pdf')
 plt.clf()

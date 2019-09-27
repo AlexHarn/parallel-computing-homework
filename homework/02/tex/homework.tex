@@ -36,36 +36,33 @@ get out, not the logic behind it.
 
 The kernel performs 6 floating point operations (FLOP) in each iteration.
 Assuming no caching we have seven floating point number reading and one writing
-operation for each loop iterations. Assuming single precision with
-$\SI{4}{byte}$ per float that translates to $\SI{32}{byte}$ of memory acces and
-an arithmetic intensity $I$ of
+operation for each loop iterations. However, we can assume that the same
+variables are kept in the registers in each loop iterations, or at least in
+fast memory. Which means the entire $y$ and $z$ arrays both only have to be
+loaded once. Assuming single precision with $\SI{4}{byte}$ per float that
+translates to $\SI{12}{byte}$ of memory access and an arithmetic intensity $I$
+of
 \begin{equation}
-  I = \frac{\SI{6}{FLOP}}{\SI{32}{byte}} = \frac{3}{16}\,\frac{\textup{FLOP}}{\textup{byte}}\,.
+  I = \frac{\SI{6}{FLOP}}{\SI{12}{byte}} = \frac{1}{2}\,\frac{\textup{FLOP}}{\textup{byte}}\,.
 \end{equation}
-For double precision we obviously get half of that. Assuming some caching where
-at least the same variable has to be loaded only once per loop iteration, we
-would have just 2 reading operations and therefore $\SI{8}{byte}$ of memory
-access which would result in $I = \SI{3/4}{FLOP\per byte}$ for single and half
-that for double precision. Depending on many factors (caching, compiler used,
-etc.) the actual numbers might be different.
 
 \subsection*{b)}
 In a simple roofline model for some $I$ the critical peak performance
-$\pi_\textup{crit}$ is given by $\beta I$, where $\beta$ is the peak memmory
-bandwith. So whatever the assumptions and resulting $I$ from
-\hyperref[sec:1a]{a)} is, for a peak performance of larger than
-$\pi_\textup{crit}$ the kernel would be compute bound, otherwise memory bound.
-
-Let's say we have double precision and some caching, so $I = \frac{3}{8}\,\frac{\textup{FLOP}}{\textup{byte}}$ we would get
+$\pi_\textup{crit}$ is given by $\beta I$, where $\beta$ is the peak memory
+bandwidth. So for $I = 0.5\,\frac{\textup{FLOP}}{\textup{byte}}$ from
+\hyperref[sec:1a]{a)} we get:
 \begin{equation}
-  \pi_\textup{crit} = 30\,\frac{\textup{GB}}{\textup{s}}\cdot \frac{3}{8}\,\frac{\textup{FLOP}}{\textup{byte}} = 11.25\,\frac{\textup{GFLOP}}{\textup{s}}\,.
+  \pi_\textup{crit} = 30\,\frac{\textup{GB}}{\textup{s}}\cdot \frac{1}{2}\,\frac{\textup{FLOP}}{\textup{byte}} = 15\,\frac{\textup{GFLOP}}{\textup{s}}\,.
 \end{equation}
+So in case the processor's peak performance is greater than
+$\SI{15}{GFLOP\per\second}$ the kernel is compute bound, otherwise
+memory bound.
 
 \newpage
 \subsection*{c)}
 A simple roofline model plot is given by Figure~\ref{fig:roofline}. The
-performance for an arithmetic intensity of $I = \SI{3/8}{FLOP\per byte}$ is
-$\SI{11.25}{GFLOP\per\second}$.
+performance for an arithmetic intensity of $I = \SI{0.5}{FLOP\per byte}$ is
+$\SI{15}{GFLOP\per\second}$.
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{../plot/roofline.pdf}
@@ -75,5 +72,73 @@ $\SI{11.25}{GFLOP\per\second}$.
 
 \section*{2) Cache optimization: Matrix Vector Multiplication}
 
+\subsection*{a) Implementation}
+See code in repository.
 
+\subsection*{b) and c) Performance Analysis and Cache Performance Measurement}
+For all of the testing in this subsection, scripts for fully automated job
+submission and data collection have been written in \textsc{Bash} and
+\textsc{Python}. Using this system, 1968 different sets of parameters ($N$,
+$M$ and $B$) were tested. For each run the relative speedup as well as cache
+misses for L1, L2 and L3 were collected as variables of interest. All of the
+results are summarized in the following plots. The raw data can be found in the
+file \textit{data.txt} in my repository, outside of the submission directory.
+
+Figure~\ref{fig:all_runs} shows the speedup for all tested matrices in
+dependence of the blocking factor $B$. Each data point is the average speedup
+for all matrices with the corresponding $B$ value.
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/speedup_for_all_bs.pdf}
+  \caption{Average speedup for all tested matrices in dependence of the blocking factor $B$.}
+  \label{fig:all_runs}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/square_against_B.pdf}
+  \caption{Results for a fixed matrix size of $N = M = 10000$ for different
+  blocking factors $B$. For reference, the plot includes two blue vertical lines
+  at $B=32$ and $B=285$.}
+  \label{fig:square_against_B}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/narrow_against_B.pdf}
+  \caption{Results for a narrow matrix with $N=100000$ and $M=200$ for different blocking factors $B$.}
+  \label{fig:narrow_against_B}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/wide_against_B.pdf}
+  \caption{Results for a wide matrix with $M=100000$ and $N=200$ for different blocking factors $B$.}
+  \label{fig:narrow_against_B}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/fixed_B_different_squares.pdf}
+  \caption{Results for a fixed blocking factor of $B=200$ for different square matrices ($N = m$).}
+  \label{fig:fixed_B_different_squares}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/fixed_B_M_different_N.pdf}
+  \caption{Results for a fixed blocking factor of $B=200$ and fixed $M=10000$
+  for different $N$.}
+  \label{fig:fixed_B_M_different_N}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/fixed_B_N_different_M.pdf}
+  \caption{Results for a fixed blocking factor of $B=200$ and fixed $N=10000$
+  for different $M$.}
+  \label{fig:fixed_B_N_different_M}
+\end{figure}
+
+\subsection*{d) Inference about the Memory Hierarchy}
 \end{document}
