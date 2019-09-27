@@ -2,7 +2,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1          
 #SBATCH --constraint=lac            
-#SBATCH --mem=100G                  
+#SBATCH --mem=10G                  
  
 module unload GNU OpenMPI
 module load GNU/6.4.0-2.28 OpenMPI/2.1.2
