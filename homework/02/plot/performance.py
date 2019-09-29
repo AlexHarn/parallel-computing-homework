@@ -22,7 +22,7 @@ plt.ylabel('Average Speedup')
 plt.savefig('speedup_for_all_bs.pdf')
 plt.clf()
 
-# cache misses and speedup against B for N=M=10000
+# cache misses and speedup against B for N=M=10000 up to 512
 B = B.astype(np.int32)
 bs = np.unique(B)
 bs = bs[bs <= 512]
@@ -41,13 +41,40 @@ plt.plot(bs, l2, '.', label='L2 Misses')
 plt.plot(bs, l1, '.', label='L1 Misses')
 plt.plot(bs, su, '.', label='Speedup')
 plt.axvline(32)
+plt.axvline(228)
 plt.axvline(285)
 plt.xlabel(r'$B$')
-plt.ylabel('Ratio Optimized/Naiv')
+plt.ylabel('Ratio Optimized/Naive')
 plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
            borderaxespad=0, frameon=False)
 # plt.show()
 plt.savefig('square_against_B.pdf')
+plt.clf()
+
+# cache misses and speedup against B for N=M=10000
+B = B.astype(np.int32)
+bs = np.unique(B)
+l1 = []
+l2 = []
+l3 = []
+su = []
+for b in bs:
+    mask = np.logical_and(B == b, np.logical_and(M == 10000, N == 10000))
+    l1.append(np.average(l1_opt[mask]/l1_naiv[mask]))
+    l2.append(np.average(l2_opt[mask]/l2_naiv[mask]))
+    l3.append(np.average(l3_opt[mask]/l3_naiv[mask]))
+    su.append(np.average(speedup[mask]))
+plt.plot(bs, l3, '.', label='L3 Misses')
+plt.plot(bs, l2, '.', label='L2 Misses')
+plt.plot(bs, l1, '.', label='L1 Misses')
+plt.plot(bs, su, '.', label='Speedup')
+plt.axvline(2083)
+plt.xlabel(r'$B$')
+plt.ylabel('Ratio Optimized/Naive')
+plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
+           borderaxespad=0, frameon=False)
+# plt.show()
+plt.savefig('square_against_B_L2.pdf')
 plt.clf()
 
 # cache misses for a wide matrix (M >> N)
@@ -69,7 +96,7 @@ plt.plot(bs, l2, '.', label='L2 Misses')
 plt.plot(bs, l1, '.', label='L1 Misses')
 plt.plot(bs, su, '.', label='Speedup')
 plt.xlabel(r'$B$')
-plt.ylabel('Ratio Optimized/Naiv')
+plt.ylabel('Ratio Optimized/Naive')
 plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
            borderaxespad=0, frameon=False)
 # plt.show()
@@ -92,7 +119,7 @@ plt.plot(bs, l2, '.', label='L2 Misses')
 plt.plot(bs, l1, '.', label='L1 Misses')
 plt.plot(bs, su, '.', label='Speedup')
 plt.xlabel(r'$B$')
-plt.ylabel('Ratio Optimized/Naiv')
+plt.ylabel('Ratio Optimized/Naive')
 plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
            borderaxespad=0, frameon=False)
 # plt.show()
@@ -110,8 +137,8 @@ plt.plot(N[mask], l3, '.', label='L3 Misses')
 plt.plot(N[mask], l2, '.', label='L2 Misses')
 plt.plot(N[mask], l1, '.', label='L1 Misses')
 plt.plot(N[mask], su, '.', label='Speedup')
-plt.xlabel(r'$N$')
-plt.ylabel('Ratio Optimized/Naiv')
+plt.xlabel(r'$N = N$')
+plt.ylabel('Ratio Optimized/Naive')
 plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
            borderaxespad=0, frameon=False)
 # plt.show()
@@ -130,7 +157,7 @@ plt.plot(N[mask], l2, '.', label='L2 Misses')
 plt.plot(N[mask], l1, '.', label='L1 Misses')
 plt.plot(N[mask], su, '.', label='Speedup')
 plt.xlabel(r'$N$')
-plt.ylabel('Ratio Optimized/Naiv')
+plt.ylabel('Ratio Optimized/Naive')
 plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
            borderaxespad=0, frameon=False)
 # plt.show()
@@ -149,7 +176,7 @@ plt.plot(M[mask], l2, '.', label='L2 Misses')
 plt.plot(M[mask], l1, '.', label='L1 Misses')
 plt.plot(M[mask], su, '.', label='Speedup')
 plt.xlabel(r'$M$')
-plt.ylabel('Ratio Optimized/Naiv')
+plt.ylabel('Ratio Optimized/Naive')
 plt.legend(loc='lower left', bbox_to_anchor=(-.1, 1.01), ncol=8,
            borderaxespad=0, frameon=False)
 # plt.show()
