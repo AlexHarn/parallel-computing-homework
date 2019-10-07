@@ -44,8 +44,7 @@ thread performance? Turbo boost yes or no? The theoretical single thread peak
 performance at a boosted clock frequency of \SI{3.3}{\giga\hertz} would simply
 be \SI{3.3}{\giga FLOP\per\second}. The sustainable single thread peak
 performance at \SI{2.4}{\giga\hertz} would be \SI{2.4}{\giga FLOP\per\second}.
-Multiply that by 24 for sustainable multithread peak performance. I am tired of
-trying to guess what the assignments are asking for.
+Multiply that by 24 for sustainable multithread peak performance. 
 \begin{figure}
   \centering
   \includegraphics[width=.7\textwidth]{./cache_table.png}
@@ -54,16 +53,93 @@ trying to guess what the assignments are asking for.
 \end{figure}
 
 \subsection*{b.}
-Again, depends on so many assumptions that have to be made and are not given by
+This depends on many assumptions that have to be made and are not given by
 the problem statement. Assuming \SI{32}{bit} single-precision floating point
 numbers, AVX can perform the same instructions on up to 8 data streams at a
-time. That would mean we get another factor of 8. Additionally, assuming that
-all operations are of the type $a+b\times c$ which can be done in one operation
-using FMA we get another factor of 2. So we simply take whatever the correct
-answer in \hyperref[sec:1a]{1) a.} is supposed to be and multiply it by 16.
+time. Four at a time for double precision. That would mean we get another
+factor of 8 or 4. Additionally, assuming that all operations are of the type
+$a+b\times c$ which can be done in one operation using FMA we get another
+factor of 2.
 
 \subsection*{c.}
-<+Placeholder+>
+The plot using GCC is given by Figure~\ref{fig:1_gcc}. Figure~\ref{fig:1_icc}
+shows the results using the Intel compiler.
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/1/1b_gcc.pdf}
+  \caption{Performance of the vector triad kernel using different compiler
+  settings for the gcc compiler.}
+  \label{fig:1_gcc}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/1/1b_icc.pdf}
+  \caption{Performance of the vector triad kernel using different compiler
+  settings for the Intel compiler.}
+  \label{fig:1_icc}
+\end{figure}
+
+\subsection*{d.}
+It seems like the O3 flag enables FMA. With only O1 the measured performance
+more or less consistently hovers around the expected peak performance assuming
+1 FLOP per cycle. For small $N$ that make perfect use of the L1 cache, the
+results are inconclusive. They do not reach the theoretical peak performance. 
+
+\subsection*{e.}
+There is a clear step structure in both plots, caused by the cache structure.
+The steps occur exactly where the corresponding cache level is used up
+according to Figure~\ref{fig:cache_table}, since $N\cdot\SI{8}{byte}$ is
+roughly the amount of fast memory used.
+
+\section*{2) Stream benchmark and memory bandwidth}
+\subsection*{a.}
+The bandwidths reported by STREAM are shown in Table~\ref{tab:stream}.
+\begin{table}
+  \centering
+  \begin{tabular}{lllll}
+    Function  &Best Rate MB/s &   Avg time  &   Min time  &  Max time \\
+    \hline 
+    Copy:     &      10718.2  &   0.150111  &   0.149278  &   0.152882 \\
+    Scale:    &      11116.3  &   0.144151  &   0.143933  &   0.144601 \\
+    Add:      &      11912.0  &   0.202684  &   0.201477  &   0.209135 \\
+    Triad:    &      11863.3  &   0.202537  &   0.202304  &   0.202677 \\
+  \end{tabular}
+  \caption{STREAM output for $N=10^{8}$.}
+  \label{tab:stream}
+\end{table}
+
+\subsection*{b.}
+The memory bandwidth varies depending on the compiler and settings. See next
+section.
+
+\subsection*{c.}
+The results are shown in Figure~\ref{fig:2_gcc} and Figure~\ref{fig:2_icc}.
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/2/gcc.pdf}
+  \caption{Results using the gcc compiler.}
+  \label{fig:2_gcc}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../plot/2/icc.pdf}
+  \caption{Results using the Intel compiler.}
+  \label{fig:2_icc}
+\end{figure}
+
+\subsection*{d.}
+We can barely measure the bandwidth for small $N$, where the L1 cache is big
+enough the hold all data. In the L2 are, the STREAM result and gcc result are
+in agreement. However, for larger $N$ the simple vector copy code
+underperforms.
+
+For some reason the time measurement seems to be less accurate when using the
+Intel compiler, even though for both figures I did use the exact same source
+code. It seems like for small $N$ the time is just so small that it can not be
+measured accurately.
+
+I'm sad that the results are inconclusive, I put a lot of time into it but just
+don't have more time for this assignment.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Bibliography %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{9}
