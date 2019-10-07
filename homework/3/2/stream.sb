@@ -1,0 +1,17 @@
+#!/bin/bash --login
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --constraint=lac
+#SBATCH --mem=10G
+
+i=$SLURM_ARRAY_TASK_ID
+N=$(python -c "print(int((10**(7.0/100 * $i )) / 16) * 16)")
+echo $N
+if [ "$N" -lt "1" ]
+then
+    exit
+fi
+sed "s/<+N+>/$N/g" stream.c > stream_$N.c
+gcc -O2 stream_$N.c -o stream_$N.x
+./stream_$N.x > stream_runs/$N.out
+rm stream_$N.c stream_$N.x
