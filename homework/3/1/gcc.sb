@@ -1,0 +1,18 @@
+#!/bin/bash --login
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1          
+#SBATCH --constraint=lac            
+#SBATCH --mem=10G                  
+
+fout=$RANDOM.x
+
+gcc -lm -O1 vector_triad.c -o $fout
+./$fout >> gcc_o1.dat
+
+gcc -lm -O3 vector_triad.c -o $fout
+./$fout >> gcc_o3.dat
+
+gcc -march=native -lm -O3 vector_triad.c -o $fout
+./$fout >> gcc_o3_native.dat
+
+rm ./$fout

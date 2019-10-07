@@ -1,0 +1,26 @@
+#!/bin/bash --login
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1          
+#SBATCH --constraint=lac            
+#SBATCH --mem=10G                  
+
+module load intel
+fout=$RANDOM.x
+
+icc -O1 vector_triad.c -o $fout
+./$fout >> intel_o1.dat
+
+icc -O3 vector_triad.c -o $fout
+./$fout >> intel_o3.dat
+
+# not supported
+#icc -O3 -xSSE vector_triad.c -o $fout
+#./$fout >> intel_o3_xsse.dat
+
+icc -O3 -xAVX vector_triad.c -o $fout
+./$fout >> intel_o3_AVX.dat
+
+icc -fast vector_triad.c -o $fout
+./$fout >> intel_fast.dat
+
+rm ./$fout

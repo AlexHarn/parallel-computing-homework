@@ -86,6 +86,7 @@ int main () {
 
   srand(time(NULL));
 
+  /*printf( "#N, R, elapsed_time, GFLOP/s\n" );*/
   for ( i = 10; i <= num; ++i ) {
     N = (int)(pow( 10, 7.0/num * i )) / 16 * 16;
     if (N < 1) continue;
@@ -96,7 +97,7 @@ int main () {
 
     elapsed_time = vec_timeit( R, N );
 
-    printf( "%10d  %10d  %.3f  %.3f\n",
+    printf( "%d,%d,%.3f,%.3f\n",
 	    N, R, elapsed_time, (double) ops / elapsed_time / 1e9 );
   }
 }
