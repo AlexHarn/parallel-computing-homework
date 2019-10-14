@@ -1,4 +1,5 @@
 matrices
+slurm_out
 *.x
 *.o
 *.swp

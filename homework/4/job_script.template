@@ -1,0 +1,10 @@
+#!/bin/bash --login
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=<+N_THREADS+>
+#SBATCH --constraint=lac
+#SBATCH --mem=<+MEMORY+>
+#SBATCH --time=<+WALL_TIME+>
+#SBATCH --output=slurm_out/<+MATRIX+>_<+N_THREADS+>_<+BLOCK_SIZE+>.out
+
+./spmv.x ./matrices/<+MATRIX+>.cus <+BLOCK_SIZE+> > ./results/<+MATRIX+>_<+N_THREADS+>_<+BLOCK_SIZE+>.out
+rm ./<+MATRIX+>_<+N_THREADS+>_<+BLOCK_SIZE+>.sb
