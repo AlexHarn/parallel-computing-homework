@@ -1,5 +1,6 @@
 all: build/homework.pdf
 	cp build/homework.pdf homework.pdf
+	cp homework.pdf ../HW4_harnisc6.pdf
 
 
 TeXOptions = -lualatex \
