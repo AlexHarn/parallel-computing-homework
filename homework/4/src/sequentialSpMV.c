@@ -6,8 +6,8 @@ void sequentialMatrixConversion()
     int **top;
 
     //set number of row blocks and column blocks
-    nrowblks = ceil(numrows/(float)(block_width));
-    ncolblks = ceil(numcols/(float)(block_width));
+    nrowblks = ceil(numrows/(double)(block_width));
+    ncolblks = ceil(numcols/(double)(block_width));
 
     //allocate memory 
     seqMatrixBlock = (seqblock *)malloc(nrowblks*ncolblks * sizeof(seqblock));
@@ -32,11 +32,11 @@ void sequentialMatrixConversion()
     {
         k1 = colptrs[c];
         k2 = colptrs[c + 1] - 1;
-        blkc = ceil((c + 1)/(float)block_width);
+        blkc = ceil((c + 1)/(double)block_width);
         for(k = k1 - 1 ; k < k2 ; k++)
         {
             r = irem[k];
-            blkr = ceil(r/(float)block_width);
+            blkr = ceil(r/(double)block_width);
             seqMatrixBlock[(blkr - 1) * ncolblks + (blkc - 1)].nnz++;
         }
     }
@@ -68,12 +68,12 @@ void sequentialMatrixConversion()
     {
         k1 = colptrs[c];
         k2 = colptrs[c + 1] - 1;
-        blkc = ceil((c + 1)/(float)block_width);
+        blkc = ceil((c + 1)/(double)block_width);
 
         for(k = k1 - 1 ; k < k2 ; k++)
         {
             r = irem[k];
-            blkr = ceil(r/(float)block_width);
+            blkr = ceil(r/(double)block_width);
 
             seqMatrixBlock[(blkr - 1) * ncolblks + blkc - 1].rloc[top[blkr - 1][blkc - 1]] = r - seqMatrixBlock[(blkr - 1) * ncolblks + blkc - 1].roffset;
             seqMatrixBlock[(blkr - 1) * ncolblks + blkc - 1].cloc[top[blkr - 1][blkc - 1]] = (c + 1) -  seqMatrixBlock[(blkr - 1) * ncolblks + blkc - 1].coffset;

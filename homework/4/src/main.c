@@ -37,16 +37,28 @@ void readMatrix(char* filename)
 int checkDifference(float *vector1, float *vector2, int N)
 {
     int i;
+    long double error_norm, vector_norm;
+
+    error_norm = 0.0;
+    vector_norm = 0.0;
+
     for (i = 0; i < N; i++) 
     {
-        if ( fabsf(vector1[i] - vector2[i]) > fabsf(vector2[i]*0.000001) )
-        {
-            fprintf(stderr, "outputs differ at position [%d]: ", i);
-            fprintf(stderr, "vector1[%d] = %.5f, ",  i, vector1[i]);
-            fprintf(stderr, "vector2[%d] = %.5f\n",  i, vector2[i]);
-            return 0;
-        }
+        error_norm += (vector1[i] - vector2[i])*(vector1[i] - vector2[i]);
+        vector_norm += vector2[i]*vector2[i];
     }
+
+    error_norm = sqrt(error_norm);
+    vector_norm = sqrt(vector_norm);
+
+    if( error_norm/vector_norm > 0.01 )
+    {
+         fprintf(stderr, "relative error norm is too big ");
+         fprintf(stderr, "error_norm = %.6Lf, ",  error_norm);
+         fprintf(stderr, "vector_norm = %.6Lf\n", vector_norm);
+         return 0;
+    }
+
     return 1;
 }
 
@@ -161,28 +173,27 @@ int main(int argc, char *argv[])
     sequentialCSC_SpMV(input_vector, sequential_csc_output);
     gettimeofday(&end,NULL);
     sequential_csc_time = getElapsed(&start,&end);
+    printf("sequential CSC SpMV time: %.3f sec\n", sequential_csc_time);
 
     // perform and time sequential CSB SpMV
     gettimeofday(&start,NULL);
     sequentialCSB_SpMV(input_vector, sequential_csb_output);
     gettimeofday(&end,NULL);
     sequential_csb_time = getElapsed(&start,&end);
+    printf("sequential CSB SpMV time: %.3f sec\n", sequential_csb_time);
 
     // perform and time sequential CSC SpMV
     gettimeofday(&start,NULL);
     parallelCSC_SpMV(input_vector, parallel_csc_output);
     gettimeofday(&end,NULL);
     parallel_csc_time = getElapsed(&start,&end);
+    printf("parallel CSC SpMV time: %.3f sec\n", parallel_csc_time);
 
     // perform and time sequential CSB SpMV
     gettimeofday(&start,NULL);
     parallelCSB_SpMV(input_vector, parallel_csb_output);
     gettimeofday(&end,NULL);
     parallel_csb_time = getElapsed(&start,&end);
-    
-    printf("sequential CSC SpMV time: %.3f sec\n", sequential_csc_time);
-    printf("sequential CSB SpMV time: %.3f sec\n", sequential_csb_time);
-    printf("parallel CSC SpMV time: %.3f sec\n", parallel_csc_time);
     printf("parallel CSB SpMV time: %.3f sec\n", parallel_csb_time);
 
     printf("Checking the difference between sequential CSC and sequential CSB SpMV outputs: ");

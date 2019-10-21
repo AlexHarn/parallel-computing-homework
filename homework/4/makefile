@@ -15,3 +15,5 @@ $(SRCDIR)/%.o: $(SRCDIR)/%.c
 
 clean:
 	    -rm  *.x $(OFILES) main.o
+		-rm results/*
+		-rm slurm_out/*
