@@ -14,6 +14,8 @@ $(SRCDIR)/%.o: $(SRCDIR)/%.c
 	    $(CC) -c -o $@ $< $(CFLAGS) $(LIB)
 
 clean:
-	    -rm  *.x $(OFILES) main.o
-		-rm results/*
-		-rm slurm_out/*
+	    rm -f *.x
+		rm -f *.o
+		rm -f source/*.o
+		rm -f results/*
+		rm -f slurm_out/*

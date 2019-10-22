@@ -9,7 +9,7 @@ void parallelMatrixConversion()
     nrowblks = ceil(numrows/(double)(block_width));
     ncolblks = ceil(numcols/(double)(block_width));
 
-    //allocate memory 
+    //allocate memory
     parMatrixBlock = (parblock *)malloc(nrowblks*ncolblks * sizeof(parblock));
 
     //top[i][j] is the counter that will be used for
@@ -28,6 +28,7 @@ void parallelMatrixConversion()
         }
     }
     //calculating nnz per block
+    #pragma omp parallel for
     for(c = 0 ; c < numcols ; c++)
     {
         k1 = colptrs[c];
@@ -42,6 +43,7 @@ void parallelMatrixConversion()
     }
 
     //allocating memory based on nonzero counts of each block
+    #pragma omp for collapse(2)
     for(blkr = 0 ; blkr < nrowblks ; blkr++)
     {
         for(blkc = 0 ; blkc < ncolblks ; blkc++)
@@ -64,6 +66,7 @@ void parallelMatrixConversion()
     }
 
     //assigning each nonzero on CSC matrix to its corresponding position on CSB matrix
+    #pragma omp for
     for(c = 0 ; c < numcols ; c++)
     {
         k1 = colptrs[c];
@@ -83,20 +86,6 @@ void parallelMatrixConversion()
         }
     }
 
-    //uncomment this part to see if your matrix conversion
-    //function works on small inputs
-    /*for(i = 0; i < nrowblks; i++)
-    {
-        for(int j = 0; j < ncolblks; j++)
-        {
-            parblock blk = parMatrixBlock[i * ncolblks + j];
-            for(int k = 0; k < blk.nnz; k++)
-            {
-                printf("%d %d %f\n", blk.rloc[k]+blk.roffset, blk.cloc[k]+blk.coffset, blk.val[k]);
-            }
-        }
-    }*/
-
     for(i = 0 ; i < nrowblks ; i++)
     {
         free(top[i]);
@@ -107,6 +96,7 @@ void parallelMatrixConversion()
 void parallelCSC_SpMV(float *x, float *b)
 {
     int i, j;
+    #pragma omp parallel for
     for(i = 0; i < numcols; i++)
     {
         for(j = colptrs[i] - 1; j < colptrs[i+1] - 1; j++)
@@ -119,15 +109,35 @@ void parallelCSC_SpMV(float *x, float *b)
 void parallelCSB_SpMV(float *x, float *b)
 {
     int i, j, k;
+    float* b_local;
     parblock blk;
-    for(i = 0; i < nrowblks; i++)
+
+    #pragma omp parallel private(b_local, blk)
     {
-        for(j = 0; j < ncolblks; j++)
+        b_local = (float *)malloc(numrows * sizeof(float));
+        for (i = 0; i < numrows; i++)
+            b_local[i] = 0.0;
+
+        #pragma omp for collapse(2)
+        for(i = 0; i < nrowblks; i++)
         {
-            blk = parMatrixBlock[i * ncolblks + j];
-            for(k = 0; k < blk.nnz; k++)
+            for(j = 0; j < ncolblks; j++)
             {
-                b[ blk.rloc[k] + blk.roffset - 1 ] += blk.val[k] * x[ blk.cloc[k] + blk.coffset - 1];
+                blk = parMatrixBlock[i * ncolblks + j];
+                for(k = 0; k < blk.nnz; k++)
+                {
+                    b_local[blk.rloc[k] + blk.roffset - 1] += blk.val[k]*x[blk.cloc[k] + blk.coffset - 1];
+                }
+            }
+        }
+
+        #pragma omp for
+        for (int i = 0; i < omp_get_num_threads(); i++)
+        {
+            for (i = 0; i < numrows; i++)
+            {
+                #pragma omp atomic
+                b[i] += b_local[i];
             }
         }
     }

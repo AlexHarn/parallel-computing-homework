@@ -1,0 +1,14 @@
+CSC matrix read time: 7.704 sec
+sequential matrix conversion time: 16.048 sec
+parallel matrix conversion time: 13.069 sec
+sequential CSC SpMV time: 1.545 sec
+sequential CSB SpMV time: 2.106 sec
+parallel CSC SpMV time: 0.430 sec
+parallel CSB SpMV time: 1.519 sec
+Checking the difference between sequential CSC and sequential CSB SpMV outputs: 1
+Checking the difference between sequential CSC and parallel CSC SpMV outputs: 1
+Checking the difference between sequential CSC and parallel CSB SpMV outputs: 1
+Achieved speedup of parallel matrix conversion over sequential one = 1.23
+Achieved speedup of sequential CSB SpMV over sequential CSC SpMV = 0.73
+Achieved speedup of parallel CSC SpMV over sequential CSC SpMV = 3.59
+Achieved speedup of parallel CSB SpMV over sequential CSC SpMV = 1.02

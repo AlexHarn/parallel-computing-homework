@@ -4,7 +4,7 @@ template=`cat job_script.template`
 
 wall_time="00:03:00"
 memory="50G"
-n_threads=1
+n_threads=14
 block_size=8192
 
 for matrix in it-2004 sk-2005
