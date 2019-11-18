@@ -1,0 +1,9 @@
+#!/bin/bash --login
+#SBATCH --ntasks=<+p+>
+#SBATCH --constraint=lac
+#SBATCH --mem=10G
+#SBATCH --time=00:10:00
+#SBATCH --output=slurm_out/<+n+>_<+p+>.out
+
+mpirun -n <+p+> ./trapezoid.x <+n+> > ./results/<+n+>_<+p+>.out
+rm ./<+n+>_<+p+>.sb
