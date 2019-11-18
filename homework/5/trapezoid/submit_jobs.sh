@@ -4,7 +4,7 @@ template=`cat job_script.template`
 
 for n in 1000 100000 10000000
 do
-    for p in 1 2 5 10 20 100 250
+    for p in 2 3 6 11 21 101 251
     do
         temp="${template//<+n+>/$n}"
         temp="${temp//<+p+>/$p}"

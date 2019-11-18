@@ -1,0 +1,18 @@
+#procs = 3
+#trapezoids = 10000000
+Interval 0.000000 to 1.000000
+Analytic solution = 1.718281828459045e+00
+
+
+RIGHT Point-to-Point SOLUTION!
+Integral = 1.718281828459048e+00
+Time = 0.110409
+Integral = 1.718281828459048e+00
+Time = 0.110409
+
+
+RIGHT Collectives SOLUTION!
+Integral = 1.718281828459048e+00
+Time = 0.110382
+Integral = 1.718281828459048e+00
+Time = 0.110382
