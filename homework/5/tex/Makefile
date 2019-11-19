@@ -2,8 +2,7 @@ all: build/homework.pdf
 	cp build/homework.pdf homework.pdf
 	cp homework.pdf ../HW5_harnisc6.pdf
 
-
-TeXOptions = -lualatex \
+TeXOptions = -pdf \
 			 -interaction=nonstopmode \
 			 -halt-on-error \
 			 -output-directory=build
