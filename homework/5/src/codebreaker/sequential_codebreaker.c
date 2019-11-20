@@ -187,9 +187,6 @@ void decrypt8(unsigned char *inp, unsigned key, unsigned char *decoded, unsigned
 
 int main(int argc,char *argv[])
 {
-    int my_rank, comm_sz, n;
-    MPI_Request req;
-
     char a;
     char outfilename[100];
     unsigned char encrypted[1000], decrypted[1000], dcopy[1000];
@@ -198,89 +195,61 @@ int main(int argc,char *argv[])
     unsigned i, len;
     double tstart, tend;
 
-    const unsigned int MAX_KEY = (unsigned) pow(2.0, (double) sizeof(int)*8);
-    int min_key, max_key, key_range;
+    printf("\n\nx0r 32-bit code breaker\n\n");
 
-    MPI_Init(NULL, NULL);
-    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
-
-    key_range = MAX_KEY/comm_sz;
-    min_key = key_range*my_rank;
-    max_key = key_range*( my_rank + 1 );
-    if ( my_rank == comm_sz - 1 )
-        max_key = MAX_KEY;
-
-    if ( my_rank == 0 )
-    {
-        printf("\n\nx0r 32-bit code breaker\n\n");
-        /*printf("Largest possible key is %u\n", MAX_KEY - 1);*/
-
-        if (argc == 1) {
-            fprintf(stderr, "ERROR: No file(s) supplied.\n");
-            fprintf(stderr, "USAGE: This program requires a filename "
-                            "to be provided as argument!\n");
-            exit(1);
-        }
-
-        printf("decrypting file %s by trying all possible keys...\n", argv[1]);
-        printf("To quit, press ctrl + c\n\n");
-        printf("Status:\n");
-
-        if ((fin = fopen(argv[1], "rb")) == NULL) {
-            fprintf(stderr, "ERROR: Could not open: %s\n", argv[1]);
-            exit(1);
-        }
-
-        fseek(fin, 0, SEEK_END);
-        len = ftell(fin);
-        fseek(fin, 0, SEEK_SET);
-        fread(encrypted, len, 1, fin);
-        printf("[LOG] %u encrypted bytes read.\n", len);
-        fclose(fin);
+    if (argc == 1) {
+        fprintf(stderr, "ERROR: No file(s) supplied.\n");
+        fprintf(stderr, "USAGE: This program requires a filename "
+                        "to be provided as argument!\n");
+        exit(1);
     }
-    MPI_Bcast(&len, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&encrypted, len, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
 
-    MPI_Irecv(&success, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG,
-            MPI_COMM_WORLD, &req);
-    MPI_Request_free(&req);
+    printf("decrypting file %s by trying all possible keys...\n", argv[1]);
+    printf("To quit, press ctrl + c\n\n");
+    printf("Status:\n");
 
-    // it's debatable where to start the timer. I do so after the broadcasting
-    // on purpose but one might also want to take that overhead into account
-    // when measuring runtime. This is not specified in the assignment.
-    if ( my_rank == 0 )
-        tstart = MPI_Wtime();
+    if ((fin = fopen(argv[1], "rb")) == NULL) {
+        fprintf(stderr, "ERROR: Could not open: %s\n", argv[1]);
+        exit(1);
+    }
 
-    for ( i = min_key; i < max_key && success == 0; ++i )
+    fseek(fin, 0, SEEK_END);
+    len = ftell(fin);
+    fseek(fin, 0, SEEK_SET);
+    fread(encrypted, len, 1, fin);
+    printf("[LOG] %u encrypted bytes read.\n", len);
+    fclose(fin);
+
+    //  printf("encrypted: ");
+    //  for (i=0; i<end; ++i)
+    //    printf("[%d]: %c", i, encrypted[i]);
+
+    tstart = MPI_Wtime();
+    for ( i = 0; i < (unsigned) pow(2.0, (double) sizeof(int)*8); ++i )
     {
         decrypt32(encrypted, i, decrypted, len);
+        //    printf("i=%d - decrypted: %s\n", i, decrypted);
+
         memcpy(dcopy, decrypted, len * sizeof(unsigned char));
 
-        if (isValid(dcopy, len))
-        {
+        if (isValid(dcopy, len)) {
             success = 1;
-            for ( int recv = 0; recv < comm_sz; recv++ )
-                MPI_Send(&success, 1, MPI_INT,  recv, 0, MPI_COMM_WORLD);
-
-            sprintf(outfilename, "%s.out", argv[1]);
-            fout = fopen(outfilename, "w");
-            fprintf(fout, "%s", decrypted);
-            printf("\nFile decrypted successfully using key %u\n", i);
-            printf("See the file %s\n\n\n", outfilename);
-            fclose(fout);
             break;
         }
     }
+    tend = MPI_Wtime();
+    printf("\nTime elapsed: %.6f seconds\n", tend - tstart);
 
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    if ( my_rank == 0 )
-    {
-        tend = MPI_Wtime();
-        printf("\nTime elapsed: %.6f seconds\n", tend - tstart);
+    if (success) {
+        sprintf(outfilename, "%s.out", argv[1]);
+        fout = fopen(outfilename, "w");
+        fprintf(fout, "%s", decrypted);
+        printf("\nFile decrypted successfully using key %u\n", i);
+        printf("See the file %s\n\n\n", outfilename);
+        fclose(fout);
+        return 0;
     }
 
-    MPI_Finalize();
-    return 0;
+    printf("\nWARNING: File could not be decrypted.\n\n\n");
+    return 1;
 }

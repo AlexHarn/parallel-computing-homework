@@ -199,17 +199,10 @@ int main(int argc,char *argv[])
     double tstart, tend;
 
     const unsigned int MAX_KEY = (unsigned) pow(2.0, (double) sizeof(int)*8);
-    int min_key, max_key, key_range;
 
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
-
-    key_range = MAX_KEY/comm_sz;
-    min_key = key_range*my_rank;
-    max_key = key_range*( my_rank + 1 );
-    if ( my_rank == comm_sz - 1 )
-        max_key = MAX_KEY;
 
     if ( my_rank == 0 )
     {
@@ -238,6 +231,7 @@ int main(int argc,char *argv[])
         fread(encrypted, len, 1, fin);
         printf("[LOG] %u encrypted bytes read.\n", len);
         fclose(fin);
+
     }
     MPI_Bcast(&len, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
     MPI_Bcast(&encrypted, len, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
@@ -246,14 +240,13 @@ int main(int argc,char *argv[])
             MPI_COMM_WORLD, &req);
     MPI_Request_free(&req);
 
-    // it's debatable where to start the timer. I do so after the broadcasting
-    // on purpose but one might also want to take that overhead into account
-    // when measuring runtime. This is not specified in the assignment.
     if ( my_rank == 0 )
         tstart = MPI_Wtime();
-
-    for ( i = min_key; i < max_key && success == 0; ++i )
+    for ( i = 0; i < MAX_KEY && success == 0; ++i )
     {
+        if ( i % comm_sz != my_rank )
+            continue;
+
         decrypt32(encrypted, i, decrypted, len);
         memcpy(dcopy, decrypted, len * sizeof(unsigned char));
 
