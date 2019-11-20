@@ -199,7 +199,7 @@ int main(int argc,char *argv[])
     double tstart, tend;
 
     const unsigned int MAX_KEY = (unsigned) pow(2.0, (double) sizeof(int)*8);
-    int min_key, max_key, key_range;
+    unsigned int min_key, max_key, key_range;
 
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -208,13 +208,13 @@ int main(int argc,char *argv[])
     key_range = MAX_KEY/comm_sz;
     min_key = key_range*my_rank;
     max_key = key_range*( my_rank + 1 );
+    printf("I am %u and my min_key is %u", min_key);
     if ( my_rank == comm_sz - 1 )
         max_key = MAX_KEY;
 
     if ( my_rank == 0 )
     {
         printf("\n\nx0r 32-bit code breaker\n\n");
-        /*printf("Largest possible key is %u\n", MAX_KEY - 1);*/
 
         if (argc == 1) {
             fprintf(stderr, "ERROR: No file(s) supplied.\n");
