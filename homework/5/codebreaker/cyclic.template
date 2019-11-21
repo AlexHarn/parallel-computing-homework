@@ -1,0 +1,11 @@
+#!/bin/bash --login
+#SBATCH --ntasks=<+p+>
+#SBATCH --constraint=lac
+#SBATCH --mem=10G
+#SBATCH --time=00:20:00
+#SBATCH --output=slurm_out/cyclic_<+key+>_<+p+>.out
+
+cp input.txt cyclic_<+key+>_<+p+>.txt
+./encrypter.x cyclic_<+key+>_<+p+>.txt <+key+>
+mpirun -n <+p+> ./cyclic_codebreaker.x cyclic_<+key+>_<+p+>.txt.ecp > ./results/cyclic_<+key+>_<+p+>.out
+rm cyclic_<+key+>_<+p+>.*

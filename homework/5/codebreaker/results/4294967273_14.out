@@ -1,0 +1,16 @@
+
+
+x0r 32-bit code breaker
+
+decrypting file 4294967273_14.txt.ecp by trying all possible keys...
+To quit, press ctrl + c
+
+Status:
+[LOG] 9 encrypted bytes read.
+
+File decrypted successfully using key 4294967273
+See the file 4294967273_14.txt.ecp.out
+
+
+
+Time elapsed: 491.470602 seconds

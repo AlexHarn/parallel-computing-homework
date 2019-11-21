@@ -1,0 +1,16 @@
+
+
+x0r 32-bit code breaker
+
+decrypting file cyclic_306783377_28.txt.ecp by trying all possible keys...
+To quit, press ctrl + c
+
+Status:
+[LOG] 9 encrypted bytes read.
+
+File decrypted successfully using key 306783377
+See the file cyclic_306783377_28.txt.ecp.out
+
+
+
+Time elapsed: 19.781945 seconds

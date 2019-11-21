@@ -1,0 +1,15 @@
+#!/bin/bash --login
+#SBATCH --ntasks=1
+#SBATCH --constraint=lac
+#SBATCH --mem=1G
+#SBATCH --time=00:40:00
+#SBATCH --output=slurm_out/<+VERSION+>_benchmark.out
+
+cp input.txt <+VERSION+>_benchmark.txt
+./encrypter.x <+VERSION+>_benchmark.txt 10000000
+mpirun -n 1 ./<+VERSION+>_codebreaker.x <+VERSION+>_benchmark.txt.ecp > ./results/<+VERSION+>_benchmark.out
+for i in {1..99}
+do
+    mpirun -n 1 ./<+VERSION+>_codebreaker.x <+VERSION+>_benchmark.txt.ecp >> ./results/<+VERSION+>_benchmark.out
+done
+rm <+VERSION+>_benchmark*

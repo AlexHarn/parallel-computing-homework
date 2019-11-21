@@ -208,7 +208,6 @@ int main(int argc,char *argv[])
     key_range = MAX_KEY/comm_sz;
     min_key = key_range*my_rank;
     max_key = key_range*( my_rank + 1 );
-    printf("I am %u and my min_key is %u", min_key);
     if ( my_rank == comm_sz - 1 )
         max_key = MAX_KEY;
 
@@ -244,7 +243,6 @@ int main(int argc,char *argv[])
 
     MPI_Irecv(&success, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG,
             MPI_COMM_WORLD, &req);
-    MPI_Request_free(&req);
 
     // it's debatable where to start the timer. I do so after the broadcasting
     // on purpose but one might also want to take that overhead into account
@@ -262,7 +260,6 @@ int main(int argc,char *argv[])
             success = 1;
             for ( int recv = 0; recv < comm_sz; recv++ )
                 MPI_Send(&success, 1, MPI_INT,  recv, 0, MPI_COMM_WORLD);
-
             sprintf(outfilename, "%s.out", argv[1]);
             fout = fopen(outfilename, "w");
             fprintf(fout, "%s", decrypted);
@@ -271,6 +268,8 @@ int main(int argc,char *argv[])
             fclose(fout);
             break;
         }
+        if ( i % 1000 == 0 )
+            MPI_Test(&req, &success, MPI_STATUS_IGNORE);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
