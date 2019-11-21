@@ -1,0 +1,9 @@
+#procs = 1
+#trapezoids = 100000000
+Interval 0.000000 to 1.000000
+Analytic solution = 1.718281828459045e+00
+
+
+RIGHT SOLUTION!
+Integral = 1.718281834073693e+00
+Time = 1.518807

@@ -6,7 +6,7 @@ from collections import OrderedDict
 from scipy.optimize import curve_fit
 from pylab import rcParams
 
-rcParams['figure.figsize'] = 10, 10
+rcParams['figure.figsize'] = 10, 5
 rcParams['font.family'] = 'serif'
 rcParams['font.size'] = 15
 
@@ -17,8 +17,10 @@ for n in [1000, 100000, 10000000]:
     print("Working on n = {}...".format(n))
 
     # part b)
+
     fig, axs = plt.subplots(2, sharex='col', sharey='col',
-                            gridspec_kw={'hspace': .2, 'wspace': 0})
+                            gridspec_kw={'hspace': .2, 'wspace': 0},
+                            figsize=(10, 10))
 
     p2p = []
     collective = []
