@@ -28,7 +28,7 @@ void qsort_dbls(double *array, int array_len)
 void get_min_avg_max(double *array, int n, double *min, double *avg, double *max)
 {
     *max = 0.; *min = DBL_MAX; *avg = 0.;
-    for ( int i = 0; i < n; i++ )
+    for (int i = 0; i < n; i++)
     {
         if ( array[i] > *max )
             *max = array[i];
@@ -39,16 +39,6 @@ void get_min_avg_max(double *array, int n, double *min, double *avg, double *max
     *avg /= n;
 }
 
-// Finds the bin of a uniform random number z between 0 and 1 given the
-// pivot list *pivots of length p - 1
-int find_bin(double z, double *pivots, int p)
-{
-    for ( int i = 0; i < p - 1; i++ )
-        if ( z < pivots[i] )
-            return i;
-    return p - 1;
-}
-
 int main(int argc, char* argv[])
 {
 
@@ -56,9 +46,6 @@ int main(int argc, char* argv[])
     double *bucketlist;     //this array will contain input elements in order of the processors
                             //e.g elements of process 0 will be stored first, then elements of process 1, and so on
     double *local_array;    //This array will contain the elements in each process
-
-    double *pivots;
-    double *sample;
 
     int n, p, i, my_rank;
 
@@ -69,7 +56,6 @@ int main(int argc, char* argv[])
 
     double t_total;
     double t_generate;
-    double t_pivoting;
     double t_binning;
     double t_distribute;
     double t_local_sort;
@@ -93,9 +79,6 @@ int main(int argc, char* argv[])
 
     const int LOCAL_N = ceil(( (float) n )/p);
     const int CHUNK_SZ = ceil(1./p);
-    int S_CHUNK = ceil(12*log(n));
-    if ( S_CHUNK*p > LOCAL_N )
-        S_CHUNK = LOCAL_N;
 
     n = p*LOCAL_N;
     bucketlist = malloc(n*sizeof(double));
@@ -103,7 +86,6 @@ int main(int argc, char* argv[])
     bin_elements = malloc(p*sizeof(int));
     scounts = malloc(p*sizeof(int));
     local_array = malloc(LOCAL_N*sizeof(double));
-    pivots = malloc((p - 1)*sizeof(double));
 
     for ( i = 0; i < p; i++ )
         scounts[i] = 0;
@@ -112,45 +94,23 @@ int main(int argc, char* argv[])
     {
         local_array[i] = ((double) rand()/( RAND_MAX + 1.));
         local_array[i] = local_array[i]*local_array[i];
+        scounts[(int)(local_array[i]/(1.0/p))]++;
     }
-
-    t_pivoting = MPI_Wtime();
-    t_generate = t_pivoting - t_generate;
-
-    if ( my_rank == 0 )
-        sample = malloc(S_CHUNK*p*sizeof(double));
-
-    // Just take the first S/p elements in each local array, since it is
-    // randomly initialized that's a random sample
-    MPI_Gather(local_array, S_CHUNK, MPI_DOUBLE, sample, S_CHUNK, MPI_DOUBLE,
-            0, MPI_COMM_WORLD);
-
-    if ( my_rank == 0 )
-    {
-        qsort_dbls(sample, p*S_CHUNK);
-        for ( i = 0; i < p - 1; i++)
-            pivots[i] = sample[S_CHUNK*i];
-    }
-
-    MPI_Bcast(pivots, p - 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     t_binning = MPI_Wtime();
-    t_pivoting = t_binning - t_pivoting;
+    t_generate = t_binning - t_generate;
 
-    for ( i = 0; i < LOCAL_N; i++ )
-        scounts[find_bin(local_array[i], pivots, p)]++;
-
-    for ( i = 0; i < p; i++ )
+    for ( i = 0 ; i<p ; i++ )
         bin_elements[i] = scounts[i];
 
     dspls[0] = 0;
-    for ( i = 0; i < p - 1; i++ )
+    for ( i = 0; i< p-1; i++ )
         dspls[i+1] = dspls[i] + scounts[i];
 
     int bin, pos;
     for ( i = 0; i < LOCAL_N; i++ )
     {
-        bin = find_bin(local_array[i], pivots, p);
+        bin = (int)(local_array[i]/(1.0/p));
         pos = dspls[bin] + scounts[bin] - bin_elements[bin];
         bucketlist[pos] = local_array[i];
         bin_elements[bin]--;
@@ -170,6 +130,7 @@ int main(int argc, char* argv[])
     for ( i = 1; i < p; i++ )
         rdspls[i] = rdspls[i - 1] + rcounts[i - 1];
     const int local_count = rdspls[p - 1] + rcounts[p -1];
+    /*printf("\nHello from %d, my local count is %d!\n\n", my_rank, local_count);*/
     local_array = malloc(local_count*sizeof(double));
     MPI_Alltoallv(bucketlist, scounts, dspls, MPI_DOUBLE, local_array, rcounts,
             rdspls, MPI_DOUBLE, MPI_COMM_WORLD);
@@ -198,7 +159,6 @@ int main(int argc, char* argv[])
     t_gathering = MPI_Wtime() - t_gathering;
 
     double *t_generate_array;
-    double *t_pivoting_array;
     double *t_binning_array;
     double *t_distribute_array;
     double *t_local_sort_array;
@@ -209,7 +169,6 @@ int main(int argc, char* argv[])
         t_total = MPI_Wtime() - t_total;
         t_generate_array = malloc(p*sizeof(double));
         t_binning_array = malloc(p*sizeof(double));
-        t_pivoting_array = malloc(p*sizeof(double));
         t_distribute_array = malloc(p*sizeof(double));
         t_local_sort_array = malloc(p*sizeof(double));
         t_gathering_array = malloc(p*sizeof(double));
@@ -218,8 +177,6 @@ int main(int argc, char* argv[])
     MPI_Gather(&t_generate, 1, MPI_DOUBLE, t_generate_array, 1, MPI_DOUBLE,
             0, MPI_COMM_WORLD);
     MPI_Gather(&t_binning, 1, MPI_DOUBLE, t_binning_array, 1, MPI_DOUBLE,
-            0, MPI_COMM_WORLD);
-    MPI_Gather(&t_pivoting, 1, MPI_DOUBLE, t_pivoting_array, 1, MPI_DOUBLE,
             0, MPI_COMM_WORLD);
     MPI_Gather(&t_distribute, 1, MPI_DOUBLE, t_distribute_array, 1, MPI_DOUBLE,
             0, MPI_COMM_WORLD);
@@ -253,7 +210,6 @@ int main(int argc, char* argv[])
 
         double generate_min, generate_avg, generate_max;
         double binning_min, binning_avg, binning_max;
-        double pivoting_min, pivoting_avg, pivoting_max;
         double distribute_min, distribute_avg, distribute_max;
         double local_sort_min, local_sort_avg, local_sort_max;
         double gather_min, gather_avg, gather_max;
@@ -262,8 +218,6 @@ int main(int argc, char* argv[])
                 &generate_avg, &generate_max);
         get_min_avg_max(t_binning_array, p, &binning_min,
                 &binning_avg, &binning_max);
-        get_min_avg_max(t_pivoting_array, p, &pivoting_min,
-                &pivoting_avg, &pivoting_max);
         get_min_avg_max(t_distribute_array, p, &distribute_min,
                 &distribute_avg, &distribute_max);
         get_min_avg_max(t_local_sort_array, p, &local_sort_min,
@@ -282,10 +236,6 @@ int main(int argc, char* argv[])
         printf("       Min: %.6f\n", binning_min);
         printf("       Avg: %.6f\n", binning_avg);
         printf("       Max: %.6f\n", binning_max);
-        printf("Pivoting:\n");
-        printf("       Min: %.6f\n", pivoting_min);
-        printf("       Avg: %.6f\n", pivoting_avg);
-        printf("       Max: %.6f\n", pivoting_max);
         printf("Distribute:\n");
         printf("       Min: %.6f\n", distribute_min);
         printf("       Avg: %.6f\n", distribute_avg);

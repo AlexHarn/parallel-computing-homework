@@ -1,0 +1,27 @@
+Time Report:
+============
+Total:      62.309498
+Generate:
+       Min: 1.714316
+       Avg: 1.792114
+       Max: 1.875974
+Binning:
+       Min: 8.125622
+       Avg: 8.139918
+       Max: 8.189456
+Pivoting:
+       Min: 0.001557
+       Avg: 0.084859
+       Max: 0.163090
+Distribute:
+       Min: 1.256640
+       Avg: 1.335217
+       Max: 1.428586
+Local Sort:
+       Min: 1.608062
+       Avg: 21.259880
+       Max: 41.656322
+Gathering:
+       Min: 9.217094
+       Avg: 25.400676
+       Max: 49.272489

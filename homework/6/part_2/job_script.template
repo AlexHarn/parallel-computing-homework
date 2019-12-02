@@ -1,0 +1,12 @@
+#!/bin/bash --login
+#SBATCH --ntasks=<+P+>
+#SBATCH --nodes=<+NODES+>
+#SBATCH --cores-per-socket=14
+#SBATCH --constraint=lac
+#SBATCH --mem=<+MEMORY+>
+#SBATCH --time=<+WALL_TIME+>
+#SBATCH --output=slurm_out/<+P+>_<+N+>.out
+
+srun -n <+P+> ./bucket_sort_v2_square.x <+N+> > results/v2_square_<+P+>_<+N+>.out
+srun -n <+P+> ./bucket_sort_v3.x <+N+> > results/v3_<+P+>_<+N+>.out
+mv <+P+>_<+N+>.sb slurm_out/

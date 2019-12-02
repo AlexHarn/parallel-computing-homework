@@ -24,7 +24,7 @@ void qsort_dbls(double *array, int array_len)
           compare_dbls);
 }
 
-// Get the maximum, minimum and average value in a array of floats
+// Get the maximum, minimum and average value in an array of floats
 void get_min_avg_max(double *array, int n, double *min, double *avg, double *max)
 {
     *max = 0.; *min = DBL_MAX; *avg = 0.;
